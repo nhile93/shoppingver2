@@ -1,2 +1,3 @@
 export const GET_ALL_CATEGORIES = 'GET_ALL_CATEGORIES'
 export const GET_ALL_BLOGS = 'GET_ALL_BLOGS'
+export const GET_ALL_PRODUCT = 'GET_ALL_PRODUCT'

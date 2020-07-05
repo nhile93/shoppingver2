@@ -5,6 +5,9 @@ import Homepage from './components/Homepage/homepage'
 import Contact from './components/Contact/contact'
 import Footer from './components/Common/Footer/footer'
 import Blog from './components/Blog/blog'
+import Categories from './components/Categories/categories'
+import Product from './components/Product/product'
+
 import { BrowserRouter as Router, Route, Link, Switch } from 'react-router-dom'
 
 function App() {
@@ -18,6 +21,14 @@ function App() {
 
           <Route path='/home'>
             <Homepage />
+          </Route>
+
+          <Route path='/product'>
+            <Product />
+          </Route>
+
+          <Route path='/categories'>
+            <Categories />
           </Route>
 
           <Route path='/contact'>

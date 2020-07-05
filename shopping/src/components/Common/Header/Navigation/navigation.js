@@ -7,8 +7,8 @@ class Navigation extends Component {
     this.state = {
       listData: [
         { to: "/home", title: "Home", isActive: true },
-        { to: "/about", title: "About", isActive: false },
-        { to: "/offer", title: "Offer", isActive: false },
+        { to: "/product", title: "Product", isActive: false },
+        { to: "/categories", title: "Categories", isActive: false },
         { to: "/blog", title: "Blogs", isActive: false },
         { to: "/contact", title: "Contacts", isActive: false }
       ]
