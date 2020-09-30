@@ -6,7 +6,7 @@ import shopReducer from './rootReducers'
 const middleWare = [thunk]
 const store = createStore(shopReducer, applyMiddleware(...middleWare))
 
-// console.log(store.getState())
+ console.log(store.getState())
 store.subscribe(()=> console.log(store.getState()))
 
 export default store

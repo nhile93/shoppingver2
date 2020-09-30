@@ -3,23 +3,116 @@ import Header from '../Common/Header/header'
 import axios from 'axios'
 import {connect} from 'react-redux'
 import {bindActionCreators} from 'redux'
-import {fetchBlogs} from '../Redux/action'
+import {fetchBlogs, createBlog, deleteBlog, updateBlog} from '../Redux/action'
 
-class BlogPage extends Component {
+class BlogForm extends Component {
   constructor(props) {
     super(props);
-    this.state = {}
+    this.state = {
+      messageError: ""
+    }
   }
 
    /*======= API =======*/
   componentWillMount = () =>{
 		console.log("componentWillMount")
-		const {fetchBlogs} = this.props
+    const {fetchBlogs} = this.props
+    const {user, status} = this.props
+    console.log("user in blogs", user)
 		fetchBlogs()
 
 		console.log("blogs: ",this.props.dataItem)
 	}
   /*======= API =======*/
+
+  onHandleChange = (evt) =>{
+    let name = evt.target.name
+    let value = evt.target.value
+
+    console.log(name +"=> "+ value)
+    //check errors
+  }
+
+  onHandleEdit = (blog_id) =>{
+    console.log("Edit blog has ID: ", blog_id)
+    const {fetchBlogs, user, status} = this.props
+    if(status){
+      let blogs = this.props.dataItem
+      let blog_item = blogs.filter((item) =>
+        item.id == blog_id
+      )[0]
+      console.log("Edit blog will be edited: ", blog_item)
+      this.refs.title.value = blog_item.title
+      this.refs.content.value = blog_item.content
+      this.refs.image.value = blog_item.image
+      this.refs.id.value = blog_item.id
+    }
+    else{
+      this.setState({messageError : "Can't update blog, You should login first!"})
+    }
+  }
+
+  onHandleUpdate = (evt) =>{
+    evt.preventDefault()
+    const {updateBlog, user, status} = this.props
+    let _title = this.refs.title.value
+    let _image = this.refs.image.value
+    let _date = new Date()
+    let _content = this.refs.content.value
+    let _id = this.refs.id.value
+    console.log("user: ", user)
+
+    // let _user = Object.assign({"id":3,"name":"Admin","email":"admin@shops.com","password":"admin1","address":"shop sprystore","phone":"012347896"})
+
+    let item = Object.assign({id: _id, title: _title, content: _content, user: user, date: _date, image: _image})
+    console.log("item:", item)
+
+    if(status){
+      updateBlog(item)
+      this.setState({messageError: "Blog updated successfully!"})
+    }
+    else{
+      this.setState({messageError : "Can't update blog, You should login first!"})
+    }
+    console.log("create blog success")
+  }
+
+  onHandleDelete = (blog_id) => {
+    console.log("Delete blog has ID: ", blog_id)
+
+    const {deleteBlog, user, status} = this.props
+    if(status){
+      deleteBlog(blog_id)
+      this.setState({messageError: "Successfully!"})
+    }
+    else{
+      this.setState({messageError : "Can't delete blog, You should login first!"})
+    }
+  }
+
+  onHandleSubmit = (evt) =>{
+    evt.preventDefault()
+    let _title = this.refs.title.value
+    let _image = this.refs.image.value
+    let _date = new Date()
+    let _content = this.refs.content.value
+    const {createBlog, user, status} = this.props
+    console.log("user: ", user)
+
+    // let _user = Object.assign({"id":3,"name":"Admin","email":"admin@shops.com","password":"admin1","address":"shop sprystore","phone":"012347896"})
+
+    let item = Object.assign({title: _title, content: _content, user: user, date: _date, image: _image})
+    console.log("item:", item)
+
+    if(status){
+      createBlog(item)
+      this.setState({messageError: "Successfully!"})
+    }
+    else{
+      this.setState({messageError : "Can't create blog, You should login first!"})
+    }
+    console.log("create blog success")
+  }
 
   render() {
     return (
@@ -67,6 +160,11 @@ class BlogPage extends Component {
                       </ul>
                       <h4><a href="#">{item.title}</a></h4>
                     </div>
+
+                    <div style={{"padding-bottom": "10px"}}>
+                      <button className="btn" type="button" onClick={() => this.onHandleEdit(item.id)}>Edit</button>
+                      <button className="btn" type="button" onClick={() => this.onHandleDelete(item.id)}>Delete</button>
+                    </div>
                   </div>
                 )}
 
@@ -82,17 +180,20 @@ class BlogPage extends Component {
               <div className="container py-lg-5">
                 <div className="form">
                   <h3 className="hny-title two text-center">Fill out the form.</h3>
-                  <form action="https://sendmail.w3layouts.com/submitForm" className="mt-md-5 mt-4" method="post">
+                  <div style={{"color": "red"}}>{this.state.messageError}</div>
+                  <form onSubmit={(evt) => this.onHandleSubmit(evt)} className="mt-md-5 mt-4" method="post">
                     <div className="input-grids">
-                      <input type="text" name="w3lName" id="w3lName" placeholder="Name" />
-                      <input type="email" name="w3lSender" id="w3lSender" placeholder="Email" required="" />
-                      <input type="subject" name="w3lSubject" id="w3lSubject" placeholder="Subject" required="" />
+                      <input type="hidden" name="id" ref="id" />
+                      <input type="text" name="title" ref="title" placeholder="Title" onChange={(evt) => this.onHandleChange(evt)}/>
+                      <input type="text" name="image" ref="image" placeholder="Image" required="" onChange={(evt) => this.onHandleChange(evt)}/>
                     </div>
                     <div className="input-textarea">
-                      <textarea name="w3lMessage" id="w3lMessage" placeholder="Message" required=""></textarea>
+                      <textarea name="content" ref="content" placeholder="Message" required="" onChange={(evt) => this.onHandleChange(evt)}></textarea>
                     </div>
                     <button type="submit" className="btn">Send</button>
+                    <button type="button" className="btn" onClick={(evt) => this.onHandleUpdate(evt)}>Save</button>
                   </form>
+
                 </div>
               </div>
             </div>
@@ -104,9 +205,11 @@ class BlogPage extends Component {
   }
 }
 const mapStateToProps = state =>({
-	dataItem: state.blogsStore.blogs
+  dataItem: state.blogsStore.blogs,
+  status: state.initStore.status,
+  user: state.initStore.user
 })
 
-const mapDispatchToProps = (dispatch) => bindActionCreators({fetchBlogs}, dispatch)
+const mapDispatchToProps = (dispatch) => bindActionCreators({fetchBlogs, createBlog, deleteBlog, updateBlog}, dispatch)
 
-export default connect(mapStateToProps, mapDispatchToProps) (BlogPage);
+export default connect(mapStateToProps, mapDispatchToProps) (BlogForm);

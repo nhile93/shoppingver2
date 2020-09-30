@@ -1,27 +1,19 @@
 import React, { Component } from 'react';
 import axios from 'axios'
+import {connect} from 'react-redux' 
+import {bindActionCreators} from 'redux'
+import {fetchProduct} from '../Redux/action'
 
 class Products extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      products: []
-    }
+    this.state = {  }
   }
 
-  /*======= API =======*/
-  fetchData = () => {
-    let url = "http://localhost:9090/api/products/getall"
-    axios.get(url)
-      .then(res => {
-        this.setState({ products: res.data })
-      })
+  componentWillMount = () =>{
+    const {fetchProduct} = this.props
+    fetchProduct()
   }
-
-  componentDidMount = () => {
-    this.fetchData()
-  }
-  /*======= API =======*/
 
   render() {
     return (
@@ -33,7 +25,7 @@ class Products extends Component {
               <p className="text-center">Handpicked Favourites just for you</p>
               <div className="ecom-products-grids row mt-lg-5 mt-3">
 
-                {this.state.products.map((item) =>
+                {this.props.products.map((item) =>
                   <div className="col-lg-3 col-6 product-incfhny mt-4">
                     <div className="product-grid2 transmitv">
                       <div className="product-image2">
@@ -72,5 +64,10 @@ class Products extends Component {
     );
   }
 }
+const mapStateToProps = state => ({
+  products: state.productStore.product
+})
 
-export default Products;
+const mapDispatchToProps = (dispatch) => bindActionCreators({fetchProduct}, dispatch)
+
+export default connect(mapStateToProps, mapDispatchToProps) (Products);
